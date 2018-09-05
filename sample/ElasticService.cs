@@ -32,8 +32,15 @@ namespace sample
         {
             return new TaskFactory().StartNew(() =>
             {
+                Console.WriteLine("GET ALL PERSONNES");
                 ISearchResponse<Personne> resp = _client.SearchAsync<Personne>(s => s).GetAwaiter().GetResult(); 
                 foreach(Personne p in resp.Documents)
+                    Console.WriteLine(p);
+
+                Console.WriteLine("GET PERSONNE BY NAME");
+                string name = "Titi";
+                resp = _client.SearchAsync<Personne>(s => s.Query(q => q.Term(a => a.Name, name))).GetAwaiter().GetResult();
+                foreach (Personne p in resp.Documents)
                     Console.WriteLine(p);
             });
         }
