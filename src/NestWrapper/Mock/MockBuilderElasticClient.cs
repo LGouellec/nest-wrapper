@@ -13,7 +13,7 @@ namespace NestWrapper.Mock
         public IElasticClient BuildElasticClient(string node, string index, Action<IConnection> action = null)
         {
             var connection = new NestWrapper.Mock.InMemoryConnection(index);
-            var connectionPool = new SingleNodeConnectionPool(new Uri("http://localhost:9200"));
+            var connectionPool = new SingleNodeConnectionPool(new Uri(node));
             var settings = new ConnectionSettings(connectionPool, connection);
             settings = settings.DefaultIndex(index);
             var client = new ElasticClient(settings);

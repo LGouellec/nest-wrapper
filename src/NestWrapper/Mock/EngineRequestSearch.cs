@@ -12,7 +12,7 @@ namespace NestWrapper.Mock
     public class EngineRequestSearch : IEngineRequestSearch
     {
         private const string emptyQuery = "{}";
-        private EngineRequestResponsability _engine = null;
+        protected EngineRequestResponsability _engine = null;
 
         public EngineRequestSearch()
         {

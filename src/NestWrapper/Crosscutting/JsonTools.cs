@@ -3,9 +3,9 @@ using Newtonsoft.Json;
 
 namespace NestWrapper.Crosscutting
 {
-    internal static class JsonTools
+    public static class JsonTools
     {
-        internal static T Deserialize<T>(this string content)
+        public static T Deserialize<T>(this string content)
         {
             try
             {
@@ -18,7 +18,7 @@ namespace NestWrapper.Crosscutting
             }
         }
 
-        internal static object Deserialize(this string content, Type type)
+        public static object Deserialize(this string content, Type type)
         {
             try
             {
