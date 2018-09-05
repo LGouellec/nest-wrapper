@@ -1,16 +1,18 @@
-using System;
+using Elasticsearch.Net;
 using Nest;
+using System;
 
-namespace dTris_Inventory_Api.Builder
+namespace NestWrapper.Builder
 {
     public class BuilderElasticClient : IBuilderElasticClient
     {
-        public virtual IElasticClient BuildElasticClient(string node, string index)
+        public virtual IElasticClient BuildElasticClient(string node, string index, Action<IConnection> action = null)
         {
-            var node = new Uri(configuration.Node);
-            var settings = new ConnectionSettings(node);
+            var nodeUri = new Uri(node);
+            var settings = new ConnectionSettings(nodeUri);
             settings = settings.DefaultIndex(index);
             var client = new ElasticClient(settings);
+            action?.Invoke(client.ConnectionSettings.Connection);
             return client;
         }
     }

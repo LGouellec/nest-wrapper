@@ -1,27 +1,23 @@
 using System;
 using System.Linq;
 using System.Text;
-using dTris_Inventory_Api.Builder;
-using dTris_Inventory_Api.Crosscutting;
-using dTris_Inventory_Api.Models;
 using Elasticsearch.Net;
 using Nest;
 using NestWrapper.Builder;
 using Newtonsoft.Json;
 
-namespace dTris_Inventory_Api.Mock.Nest
+namespace NestWrapper.Mock
 {
     public class MockBuilderElasticClient : IBuilderElasticClient
     {
-        public IElasticClient BuildElasticClient(string node, string index)
+        public IElasticClient BuildElasticClient(string node, string index, Action<IConnection> action = null)
         {
-            var connection = new Mock.Nest.InMemoryConnection(index);
-            connection.Map<Asset>("asset").Map<Discovery>("discovery");
-
+            var connection = new NestWrapper.Mock.InMemoryConnection(index);
             var connectionPool = new SingleNodeConnectionPool(new Uri("http://localhost:9200"));
             var settings = new ConnectionSettings(connectionPool, connection);
             settings = settings.DefaultIndex(index);
             var client = new ElasticClient(settings);
+            action?.Invoke(connection);
             return client;
         }
     }

@@ -6,17 +6,17 @@ using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using dTris_Inventory_Api.Crosscutting;
 using Elasticsearch.Net;
 using Nest;
+using NestWrapper.Engine;
 using Newtonsoft.Json.Linq;
 
-namespace dTris_Inventory_Api.Mock.Nest
+namespace NestWrapper.Mock
 {
     public class InMemoryConnection : IConnection, IDisposable
     {
         private static Dictionary<string, List<Tuple<string, string>>> _data = new Dictionary<string, List<Tuple<string, string>>>();
-        private readonly MockEngineRequestSearch _mockEngine = new MockEngineRequestSearch();
+        private IEngineRequestSearch _mockEngine = new EngineRequestSearch();
         private readonly string _index;
         private readonly Dictionary<string, Type> _mappings = new Dictionary<string, Type>();
 
@@ -34,6 +34,10 @@ namespace dTris_Inventory_Api.Mock.Nest
             return this;
         }
 
+        public void UseSearchEngine(IEngineRequestSearch engine){
+            _mockEngine = engine;
+        }
+
         public void Dispose()
         {
             DisposeManagedResources();
@@ -49,6 +53,7 @@ namespace dTris_Inventory_Api.Mock.Nest
         TResponse IConnection.Request<TResponse>(RequestData requestData) => this.ReturnConnectionResponse<TResponse>(requestData);
         private TResponse ReturnConnectionResponse<TResponse>(RequestData requestData)
         {
+            // TODO : To implement
             return default(TResponse);
         }
 
@@ -78,11 +83,11 @@ namespace dTris_Inventory_Api.Mock.Nest
             {
                 var result = _mockEngine.Request(requestData.PathAndQuery, _mappings, _index, _data, requestBody);
                 Stream s = requestData.MemoryStreamFactory.Create(result);
-                return await ResponseBuilder.ToResponseAsync<TResponse>(requestData, null, 200, null, s, "application/json", cancellationToken);
+                return await Elasticsearch.Net.ResponseBuilder.ToResponseAsync<TResponse>(requestData, null, 200, null, s, "application/json", cancellationToken);
             }
             else if (requestData.PathAndQuery.Contains("_update"))
             {
-                string[] args = requestData.PathAndQuery.Split("/");
+                string[] args = requestData.PathAndQuery.Split(new string[]{"/"}, StringSplitOptions.RemoveEmptyEntries);
                 if (args.Length >= 3)
                 {
                     string index = args[0], type = args[1], id = args[2];
@@ -110,7 +115,7 @@ namespace dTris_Inventory_Api.Mock.Nest
             }
             else
             {
-                string[] args = requestData.PathAndQuery.Split("/");
+                string[] args = requestData.PathAndQuery.Split(new string[]{"/"}, StringSplitOptions.RemoveEmptyEntries);
                 if (args.Length >= 3)
                 {
                     string index = args[0], type = args[1], idDoc = args[2];
@@ -144,15 +149,15 @@ namespace dTris_Inventory_Api.Mock.Nest
         private async Task<TResponse> ReturnUpdateResponse<TResponse>(RequestData requestData, string id, string index, Result res, string type)
             where TResponse : class, IElasticsearchResponse, new()
         {
-            Stream s = requestData.MemoryStreamFactory.Create(MockResponseBuilder.CreateUpdateResponse(id, index, res, type));
-            return await ResponseBuilder.ToResponseAsync<TResponse>(requestData, null, 200, null, s, "application/json");
+            Stream s = requestData.MemoryStreamFactory.Create(ResponseBuilder.CreateUpdateResponse(id, index, res, type));
+            return await Elasticsearch.Net.ResponseBuilder.ToResponseAsync<TResponse>(requestData, null, 200, null, s, "application/json");
         }
 
         private async Task<TResponse> ReturnIndexResponse<TResponse>(RequestData requestData, string id, string index, Result res, string type)
             where TResponse : class, IElasticsearchResponse, new()
         {
-            Stream s = requestData.MemoryStreamFactory.Create(MockResponseBuilder.CreateIndexResponse(id, index, res, type));
-            return await ResponseBuilder.ToResponseAsync<TResponse>(requestData, null, 200, null, s, "application/json");
+            Stream s = requestData.MemoryStreamFactory.Create(ResponseBuilder.CreateIndexResponse(id, index, res, type));
+            return await Elasticsearch.Net.ResponseBuilder.ToResponseAsync<TResponse>(requestData, null, 200, null, s, "application/json");
         }
     }
 }
