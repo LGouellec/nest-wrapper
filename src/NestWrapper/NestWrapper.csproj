@@ -2,6 +2,13 @@
 
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
+    <PackageId>NestWrapper</PackageId>
+    <Version>1.0.1</Version>
+    <Authors>legouellecs</Authors>
+    <PackageProjectUrl>https://github.com/LGouellec/nest-wrapper</PackageProjectUrl>
+    <Description>NestWrapper is a wrapper for Nest Client, to make it easier to use Nest in unit tests</Description>
+    <PackageTags>nest wrapper</PackageTags>
+    <RepositoryUrl>https://github.com/LGouellec/nest-wrapper.git"</RepositoryUrl>
   </PropertyGroup>
 
   <ItemGroup>
