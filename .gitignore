@@ -1,3 +1,4 @@
 bin
 obj
 nupkgs
+/src/NestWrapper/build.cmd
