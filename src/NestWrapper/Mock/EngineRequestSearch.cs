@@ -38,7 +38,7 @@ namespace NestWrapper.Mock
                 return new byte[0];
 
             Type typeDoc = mappings[type];
-            List<Tuple<string, string>> _data = null;
+            List<Tuple<string, string>> _data = new List<Tuple<string, string>>();
 
             if (!data.ContainsKey(index))
             {
