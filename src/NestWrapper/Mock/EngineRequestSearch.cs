@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text.RegularExpressions;
 using Nest;
 using NestWrapper.Crosscutting;
 using NestWrapper.Engine;
@@ -11,7 +12,7 @@ namespace NestWrapper.Mock
 {
     public class EngineRequestSearch : IEngineRequestSearch
     {
-        private const string emptyQuery = "{}";
+        protected const string emptyQuery = "{}";
         protected EngineRequestResponsability _engine = null;
 
         public EngineRequestSearch()
@@ -23,7 +24,7 @@ namespace NestWrapper.Mock
 
         #region Request
 
-        public byte[] Request(
+        public virtual byte[] Request(
             string pathAndQuery,
             Dictionary<string, Type> mappings,
             string index,
@@ -37,11 +38,27 @@ namespace NestWrapper.Mock
                 return new byte[0];
 
             Type typeDoc = mappings[type];
+            List<Tuple<string, string>> _data = null;
 
             if (!data.ContainsKey(index))
-                return new byte[0];
+            {
+                List<string> indexes = new List<string>();
+                string pattern = index;
+                Regex regex = new Regex(pattern);
+                foreach(string ind in data.Select(kp => kp.Key))
+                    if(regex.IsMatch(ind))
+                        indexes.Add(ind);
 
-            List<Tuple<string, string>> _data = data[index];
+                if (indexes.Count == 0)
+                    return new byte[0];
+                else
+                {
+                    foreach(string ind in indexes)
+                        _data.AddRange(data[ind]);
+                }
+            }
+            else
+                _data = data[index];
 
             if (requestBody.Equals(emptyQuery))
                 return ReturnRequestBody(_data.Select(t => t.Item2).Select(s => s.Deserialize(typeDoc)), typeDoc);
@@ -53,7 +70,7 @@ namespace NestWrapper.Mock
             }
         }
 
-        private byte[] ReturnRequestBody(IEnumerable<object> datas, Type type)
+        protected byte[] ReturnRequestBody(IEnumerable<object> datas, Type type)
         {
             return ResponseBuilder.CreateSearchResponse(datas.ToList(), obj =>
             {
