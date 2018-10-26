@@ -60,11 +60,11 @@ namespace NestWrapper.Mock
             else
                 _data = data[index];
 
-            if (requestBody.Equals(emptyQuery))
+            JToken query = JObject.Parse(requestBody)["query"];
+            if (query == null)
                 return ReturnRequestBody(_data.Select(t => t.Item2).Select(s => s.Deserialize(typeDoc)), typeDoc);
             else
             {
-                JToken query = JObject.Parse(requestBody)["query"];
                 List<object> result = _engine.Execute(query, _data.Select(t => t.Item2).Select(s => s.Deserialize(typeDoc)).ToList());
                 return ReturnRequestBody(result, typeDoc);
             }
