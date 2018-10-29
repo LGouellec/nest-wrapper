@@ -70,7 +70,7 @@ namespace NestWrapper.Mock
             }
         }
 
-        protected byte[] ReturnRequestBody(IEnumerable<object> datas, Type type)
+        protected virtual byte[] ReturnRequestBody(IEnumerable<object> datas, Type type)
         {
             return ResponseBuilder.CreateSearchResponse(datas.ToList(), obj =>
             {
